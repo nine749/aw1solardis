@@ -213,7 +213,6 @@ function showError(message) {
     }, 3000);
 }
 
-// Fetch solar data from the backend API
 async function fetchSolarData(lat, lng) {
     try {
         showLoading();
@@ -228,31 +227,39 @@ async function fetchSolarData(lat, lng) {
         const data = await response.json();
         currentData = data;
         
-        // Restore the solar data view
-        document.getElementById('solar-data').innerHTML = `
-            <div class="data-notice">
-            </div>
-            <h4 id="period-title">Daily Solar Metrics</h4>
-            <div class="table-container">
-                <table id="data-table">
-                    <thead>
-                        <tr>
-                            <th id="date-header">Date</th>
-                            <th>Sunlight Hours</th>
-                            <th>GHI (kWh/m²/day)</th>
-                            <th>PVOUT (kWh/kWp/day)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="data-tbody">
-                        <!-- Data rows will be inserted here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="chart-container">
-                <canvas id="solar-chart"></canvas>
-            </div>
+        // Instead of completely replacing the HTML, just update the necessary elements
+        const solarData = document.getElementById('solar-data');
+        
+        // Preserve the existing structure and just clear the dynamic content
+        const tableContainer = solarData.querySelector('.table-container') || document.createElement('div');
+        tableContainer.className = 'table-container';
+        tableContainer.innerHTML = `
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th id="date-header">Date</th>
+                        <th>Sunlight Hours</th>
+                        <th>GHI (kWh/m²/day)</th>
+                        <th>PVOUT (kWh/kWp/day)</th>
+                    </tr>
+                </thead>
+                <tbody id="data-tbody">
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+            </table>
         `;
+        
+        const chartContainer = solarData.querySelector('#chart-container') || document.createElement('div');
+        chartContainer.id = 'chart-container';
+        chartContainer.innerHTML = '<canvas id="solar-chart"></canvas>';
+        
+        // Update the solarData content while preserving the structure
+        solarData.innerHTML = '';
+        solarData.appendChild(document.createElement('h4')).id = 'period-title';
+        solarData.appendChild(tableContainer);
+        solarData.appendChild(chartContainer);
+        
+        document.getElementById('period-title').textContent = 'Daily Solar Metrics';
         
         loadData(document.getElementById('period-select').value);
         return data;
@@ -303,7 +310,6 @@ function loadData(period) {
     updateChart(data, period);
 }
 
-// Map click handler
 map.on('click', async function(e) {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
@@ -321,7 +327,7 @@ map.on('click', async function(e) {
     document.getElementById('lng').textContent = lng.toFixed(6);
     document.getElementById('location-name').textContent = `Selected Location`;
     
-    // Show and expand the panel
+    // Always ensure panel is expanded and interactive when new location is selected
     const panel = document.getElementById('data-panel');
     panel.classList.remove('collapsed');
     panel.classList.remove('hidden');
@@ -330,6 +336,7 @@ map.on('click', async function(e) {
     panel.style.maxWidth = '650px';
     panel.style.padding = '15px';
     panel.style.overflow = 'auto';
+    panel.style.pointerEvents = 'auto';
     panel.style.flex = '0 0 650px';
     panel.style.opacity = '1';
     
@@ -337,17 +344,16 @@ map.on('click', async function(e) {
     document.querySelector('.panel-toggle').style.left = '-15px';
     
     try {
-        // Fetch solar data from the backend
         await fetchSolarData(lat, lng);
         locationSelected = true;
+        rebindPanelInteractions(); // Ensure interactions are properly bound
     } catch (error) {
-        // Error is handled in fetchSolarData function
         locationSelected = false;
     }
     
-    // Force map update after panel animation completes
     setTimeout(() => {
         map.invalidateSize();
+        if (solarChart) solarChart.resize();
     }, 300);
 });
 
@@ -491,34 +497,50 @@ document.getElementById('toggle-panel').addEventListener('click', function() {
     if (!locationSelected) return;
     
     const panel = document.getElementById('data-panel');
+    const isCollapsing = !panel.classList.contains('collapsed');
+    
     panel.classList.toggle('collapsed');
     
-    if (panel.classList.contains('collapsed')) {
+    if (isCollapsing) {
         this.textContent = '▶';
         document.querySelector('.panel-toggle').style.left = '-25px';
-        panel.style.width = '0';
-        panel.style.maxWidth = '0';
-        panel.style.padding = '0';
-        panel.style.overflow = 'hidden';
-        panel.style.pointerEvents = 'none';
-        panel.style.flex = '0 0 0';
-        panel.style.opacity = '0';
     } else {
         this.textContent = '◀';
         document.querySelector('.panel-toggle').style.left = '-15px';
-        panel.style.width = '650px';
-        panel.style.maxWidth = '650px';
-        panel.style.padding = '15px';
-        panel.style.overflow = 'auto';
-        panel.style.pointerEvents = 'auto';
-        panel.style.flex = '0 0 650px';
-        panel.style.opacity = '1';
+        rebindPanelInteractions();
     }
     
     setTimeout(() => {
         map.invalidateSize();
+        if (solarChart) solarChart.resize();
     }, 300);
 });
+
+function rebindPanelInteractions() {
+    // Rebind period selector
+    const periodSelect = document.getElementById('period-select');
+    if (periodSelect) {
+        periodSelect.addEventListener('change', function() {
+            loadData(this.value);
+        });
+    }
+    
+    // Rebind chart interactions if chart exists
+    if (solarChart) {
+        const chartCanvas = document.getElementById('solar-chart');
+        if (chartCanvas) {
+            chartCanvas.style.pointerEvents = 'auto';
+        }
+        solarChart.resize();
+    }
+    
+    // Ensure table is scrollable
+    const tableContainer = document.querySelector('.table-container');
+    if (tableContainer) {
+        tableContainer.style.overflowX = 'auto';
+        tableContainer.style.pointerEvents = 'auto';
+    }
+}
 
 // Panel resizing implementation
 (function() {
