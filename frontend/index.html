@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Duration Displayer</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Solar Duration Displayer</h1>
+            <div class="search-container">
+                <input type="text" placeholder="Search Location">
+                <button type="button">🔍</button>
+            </div>
+        </header>
+        <main>
+            <div id="map-container">
+                <!-- Map inserted by Leaflet -->
+            </div>
+
+            <div id="panel-container">
+                <!-- Panel resizer now comes first in the structure -->
+                <div id="panel-resizer"></div>
+                
+                <!-- Toggle button moved OUTSIDE the panel but still inside the container -->
+                <div class="panel-toggle" id="panel-toggle-container">
+                    <button id="toggle-panel" type="button">◀</button>
+                </div>
+                
+                <div id="data-panel" class="hidden">
+                    <div id="location-info">
+                        <h3 id="location-name">Bangkok</h3>
+                        <p id="location-coords">Latitude: <span id="lat">0.0</span><br>Longitude: <span id="lng">0.0</span></p>
+                        
+                        <div class="period-selector">
+                            <select id="period-select">
+                                <option value="daily">Daily Averages</option>
+                                <option value="monthly">Monthly Averages</option>
+                                <!-- <option value="yearly">Yearly Averages</option> -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="solar-data">
+                        <h4 id="period-title">Daily Averages of Solar Metrics - Jan 2024</h4>
+                        <div class="table-container">
+                            <table id="data-table">
+                                <thead>
+                                    <tr>
+                                        <th id="date-header">Date</th>
+                                        <th>Sunlight Hours</th>
+                                        <th>GHI (kWh/m²/day)</th>
+                                        <th>PVOUT (kWh/kWp/day)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-tbody">
+                                    <!-- Data rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="chart-container">
+                            <canvas id="solar-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Your custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

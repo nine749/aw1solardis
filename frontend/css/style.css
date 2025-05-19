@@ -1,0 +1,324 @@
+.hidden {
+    display: none !important;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+header {
+    background-color: #29408b;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+}
+
+.search-container input {
+    padding: 8px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    width: 250px;
+}
+
+.search-container button {
+    background: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+}
+
+#map-container {
+    flex: 1;
+    height: calc(100vh - 60px);
+    transition: flex 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+
+#panel-container {
+    display: flex;
+    position: relative;
+    overflow: visible;
+}
+
+#data-panel {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    overflow-y: auto;
+    max-width: 650px;
+    width: 650px;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s ease, padding 0.3s ease, width 0.3s ease;
+    position: relative;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+#solar-data {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    padding-bottom: 20px;
+}
+
+.panel-toggle {
+    position: absolute;
+    top: 50%;
+    left: -25px;
+    transform: translateY(-50%);
+    z-index: 1100;
+    pointer-events: auto !important;
+    display: block;
+}
+
+#toggle-panel {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    padding: 8px 6px;
+    cursor: pointer;
+    width: 25px;
+    height: 60px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: -3px 0 8px rgba(0,0,0,0.3);
+    pointer-events: auto !important;
+}
+
+#panel-resizer {
+    width: 8px;
+    background-color: #34495e;
+    cursor: col-resize;
+    z-index: 900;
+    transition: opacity 0.3s ease;
+}
+
+#data-panel.collapsed ~ #panel-resizer {
+    opacity: 0;
+    cursor: default;
+    overflow: hidden !important;
+    pointer-events: none;
+}
+
+#panel-resizer:hover,
+body.resizing #panel-resizer {
+    background-color: #3498db;
+}
+
+/* Global resizing state */
+body.resizing {
+    cursor: col-resize !important;
+}
+
+body.resizing #map-container,
+body.resizing #data-panel {
+    transition: none !important;
+    pointer-events: none;
+}
+
+
+#data-panel.collapsed {
+    max-width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    width: 0 !important;
+    flex: 0 0 0 !important;
+    visibility: visible !important;
+    opacity: 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+#location-info {
+    margin-bottom: 20px;
+}
+
+#location-name {
+    color: #f39c12;
+    margin-bottom: 5px;
+}
+
+#location-coords {
+    color: #f39c12;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+
+.period-selector {
+    margin-bottom: 20px;
+}
+
+#period-select {
+    width: 100%;
+    padding: 8px;
+    background-color: #34495e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#period-title {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    flex: 0 0 auto;
+    max-height: 50vh;
+    border-bottom: 2px solid #3e5e7e;
+}
+
+#data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid #3e5e7e;
+}
+
+#data-table th, #data-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #3e5e7e;
+}
+
+#data-table td {
+    border-right: 2px solid #3e5e7e;
+}
+
+#data-table td:last-child {
+    border-right: none;
+}
+
+#data-table th {
+    background-color: #2c3e50;
+    color: white;
+    border-bottom: 2px solid #3e5e7e;
+    font-weight: bold;
+}
+
+#chart-container {
+    width: 100%;
+    position: relative;
+    margin-top: 20px;
+    height: 35vh;
+    min-height: 250px;
+    transition: height 0.2s ease;
+}
+
+.leaflet-control-zoom {
+    margin: 10px !important;
+}
+
+/* Map container when panel is collapsed */
+#data-panel.collapsed + #map-container {
+    flex: 1;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    color: #333;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-error-message {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    padding: 10px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+}
+
+#lat, #lng {
+    color: #ffffff;
+}
+
